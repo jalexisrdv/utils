@@ -12,15 +12,15 @@ Option Private Module
 '@Param sourceEndRow fila final de la hoja fuente hasta donde se copiaran los niveles
 '@Param targetStartRow fila inicial de hoja objetivo a partir de la cual se comenzaran a establecer los niveles copiados
 Public Sub CopyGroupingLevelsFrom( _
-    sourceSheet As Worksheet, _
-    targetSheet As Worksheet, _
-    ByVal sourceStartRow As Integer, _
-    ByVal sourceEndRow As Integer, _
-    ByVal targetStartRow As Integer _
+    ByVal sourceSheet As Worksheet, _
+    ByVal targetSheet As Worksheet, _
+    ByVal sourceStartRow As Long, _
+    ByVal sourceEndRow As Long, _
+    ByVal targetStartRow As Long _
 )
-    Dim row As Integer
+    Dim row As Long
     For row = sourceStartRow To sourceEndRow
-        targetSheet.Rows(targetStartRow).OutlineLevel = sourceSheet.Rows(row).OutlineLevel
+        targetSheet.rows(targetStartRow).OutlineLevel = sourceSheet.rows(row).OutlineLevel
         targetStartRow = targetStartRow + 1
     Next
 End Sub
@@ -28,10 +28,10 @@ End Sub
 '@Description obtiene el nivel de agrupacion mas alto existente de una fila
 '@Param sheet hoja de la cual se obtendra el nivel de agrupacion
 '@Return valor Integer que representa el nivel de agrupacion mas alto
-Public Function GetMaxRowOutlineLevel(sheet As Worksheet) As Integer
+Public Function GetMaxRowOutlineLevel(ByVal sheet As Worksheet) As Long
     Dim row As Range
-    Dim maxOutlineLevel As Integer
-    For Each row In sheet.UsedRange.Rows
+    Dim maxOutlineLevel As Long
+    For Each row In sheet.UsedRange.rows
         If maxOutlineLevel < row.OutlineLevel Then
             maxOutlineLevel = row.OutlineLevel
         End If
@@ -42,9 +42,9 @@ End Function
 '@Description obtiene el nivel de agrupacion mas alto existente de una columna
 '@Param sheet hoja de la cual se obtendra el nivel de agrupacion
 '@Return valor Integer que representa el nivel de agrupacion mas alto
-Public Function GetMaxColumnOutlineLevel(sheet As Worksheet) As Integer
+Public Function GetMaxColumnOutlineLevel(ByVal sheet As Worksheet) As Long
     Dim column As Range
-    Dim maxOutlineLevel As Integer
+    Dim maxOutlineLevel As Long
     For Each column In sheet.UsedRange.Columns
         If maxOutlineLevel < column.OutlineLevel Then
             maxOutlineLevel = column.OutlineLevel
@@ -57,7 +57,7 @@ End Function
 '@Param sheet hoja en la cual se mostraran las filas del nivel de agrupacion indicado
 '@Param maxOutlineLevel el nivel de grupacion mas alto existente en una fila
 '@Param levels nivel hasta el cual se visualizaran las filas
-Public Sub ShowRowOutlineLevel(sheet As Worksheet, ByVal maxOutlineLevel As Integer, levels As Integer)
+Public Sub ShowRowOutlineLevel(ByVal sheet As Worksheet, ByVal maxOutlineLevel As Long, ByVal levels As Long)
     Do While maxOutlineLevel >= levels
         sheet.Outline.ShowLevels rowLevels:=maxOutlineLevel
         maxOutlineLevel = maxOutlineLevel - 1
@@ -68,7 +68,7 @@ End Sub
 '@Param sheet hoja en la cual se mostraran las columnas del nivel de agrupacion indicado
 '@Param maxOutlineLevel el nivel de grupacion mas alto existente en una columna
 '@Param levels nivel hasta el cual se visualizaran las columnas
-Public Sub ShowColumnOutlineLevel(sheet As Worksheet, ByVal maxOutlineLevel As Integer, levels As Integer)
+Public Sub ShowColumnOutlineLevel(ByVal sheet As Worksheet, ByVal maxOutlineLevel As Long, ByVal levels As Long)
     Do While maxOutlineLevel >= levels
         sheet.Outline.ShowLevels columnLevels:=maxOutlineLevel
         maxOutlineLevel = maxOutlineLevel - 1
@@ -77,14 +77,14 @@ End Sub
 
 '@Description limpia o elimina el esquema de agrupacion establecido
 '@Param sheet hoja en la cual se eliminara el esquema de agrupacion
-Public Sub ClearOutline(sheet As Worksheet)
+Public Sub ClearOutline(ByVal sheet As Worksheet)
     sheet.Cells.ClearOutline
 End Sub
 
 '@Description copia la direccion del esquema de agrupacion desde una hoja fuente a una hoja objetivo
 '@Param sourceSheet hoja fuente desde la cual se copiara la direccion del esquema de agrupacion
 '@Param targetSheet hoja objetivo en la cual se establecera la direccion del esquema de agrupacion copiado
-Public Sub CopyOutlineFrom(sourceSheet As Worksheet, targetSheet As Worksheet)
+Public Sub CopyOutlineFrom(ByVal sourceSheet As Worksheet, ByVal targetSheet As Worksheet)
     targetSheet.Outline.SummaryRow = sourceSheet.Outline.SummaryRow
     targetSheet.Outline.SummaryColumn = sourceSheet.Outline.SummaryColumn
 End Sub
@@ -92,13 +92,25 @@ End Sub
 '@Description copia la informacion del rango usado desde la hoja fuente al rango indicado de la hoja objetivo
 '@Param sourceSheet hoja desde la cual se copiara la informacion del rango usado
 '@Param targetRange rango de la hoja objetivo donde se pegara la informacion copiada
-Public Sub CopyByUsedRangeFrom(sourceSheet As Worksheet, targetRange As Range)
+Public Sub CopyByUsedRangeFrom(ByVal sourceSheet As Worksheet, ByVal targetRange As Range)
     sourceSheet.UsedRange.Copy targetRange
+End Sub
+
+'@Description copia los valores del rango usado de la hoja fuete a traves del array de valores del rango usado,
+'este tipo de copiado es util para no hacer uso del portapapeles al copiar la informacion.
+'@Param sourceSheet hoja desde la cual se copiara la informacion del rango usado
+'@Param targetRange rango de la hoja objetivo donde se pegara la informacion copiada
+Public Sub CopyUsedRangeValuesArrayFrom(ByVal sourceSheet As Worksheet, ByVal targetSheet As Worksheet, ByVal targetRange As Range)
+    Dim auxNumberFormat As Variant
+'    auxNumberFormat = targetSheet.Cells.NumberFormat 'creando copia del formato de celdas original
+'    targetSheet.Cells.NumberFormat = "@" 'estableciendo formato de texto, para evitar convertir datos
+    targetRange.Resize(UBound(sourceSheet.UsedRange.Value, 1), UBound(sourceSheet.UsedRange.Value, 2)).Value = sourceSheet.UsedRange.Value
+'    targetSheet.Cells.NumberFormat = auxNumberFormat 'restaurando el formato de celdas original
 End Sub
 
 '@Description auto-ajusta el tamaño de las columnas de acuerdo al texto contenido dentro
 '@Param sheet hoja en la cual se ajustara el tamaño de las columnas automaticamente
-Public Sub AutoFitColumns(sheet As Worksheet)
+Public Sub AutoFitColumns(ByVal sheet As Worksheet)
     sheet.UsedRange.Columns.AutoFit
 End Sub
 
@@ -106,9 +118,11 @@ End Sub
 '@Param targetWorkbook documento excel o Workbook donde se comprobara la existencia de la hoja indicada
 '@Param sheetName nombre de la hoja a comprobar existencia
 '@Return True si la hoja existe, False de lo contrario
-Public Function ContaintsSheet(targetWorkbook As Workbook, sheetName As String) As Boolean
+Public Function ContaintsSheet(ByVal targetWorkbook As Workbook, ByVal sheetName As String) As Boolean
 On Error GoTo ErrorHandler
-    ContaintsSheet = targetWorkbook.Worksheets(sheetName).Name = sheetName
+    If LCase(targetWorkbook.Worksheets(sheetName).Name) = LCase(sheetName) Then
+        ContaintsSheet = True
+    End If
     Exit Function
 ErrorHandler:
     ContaintsSheet = False
@@ -128,4 +142,34 @@ Public Sub ChangePivotTableSourceData(ByVal targetWorkbook As Workbook, ByVal ta
     targetPivotTable.ChangePivotCache newPivotCache
     targetPivotTable.PivotCache.Refresh 'actualizando el cache o fuente de datos de la tabla recuperada
     targetPivotTable.Update 'actualizando solo la tabla recuperada
+End Sub
+
+'@Description revisa si el rango de celdas seleccionado, tiene celdas visibles. Las celdas visibles se revisan cuando algun filtro de columna es aplicado.
+'@Param targetRange rango a revisar si existen celdas visibles.
+'@Return True, si contiene celdas visibles, Falso de lo contrario
+Public Function HasVisibleCells(ByVal targetRange As Range) As Boolean
+On Error GoTo ErrorHandler
+    targetRange.SpecialCells (xlCellTypeVisible)
+    HasVisibleCells = True
+    Exit Function
+ErrorHandler:
+    HasVisibleCells = False
+End Function
+
+'@Description convierte los valores de texto contenidos en una columna a valores de tipo numero
+'@Param sheet hoja donde existe la columna
+'@Param column numero de columna en la cual desea convertir los valores de texto a numero
+Public Sub ConvertTextColumnToNumberColumn(ByVal sheet As Worksheet, ByVal column As Long)
+    With sheet.Columns(column)
+        .NumberFormat = "0"
+        .Value = .Value
+    End With
+End Sub
+
+'@Description selecciona todos los valores de todos los filtros, esto hace que toda la informacion se muestre. En pocas palabras limpia el filtro
+'@Param sheet hoja de la cual se quiere limpiar el filtro
+Public Sub SelectAllFilters(ByVal sheet As Worksheet)
+    On Error Resume Next
+    sheet.ShowAllData
+    On Error GoTo 0
 End Sub

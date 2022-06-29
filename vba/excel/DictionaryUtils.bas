@@ -7,40 +7,42 @@ Attribute VB_Name = "DictionaryUtils"
 'permitiendo agregar, eliminar, recuperar y verificar existencia de elementos agregados al objeto.
 'Ademas, permite convertir una hoja de excel que representa un diccionario de datos para clasificar informacion a un
 'objeto Dictionary, lo cual mejora la eficiencia al buscar informacion.
-
-Option Explicit
 Option Private Module
+Option Explicit
 
 Private dictionary As New dictionary
 
-'@Description crea un objeto Dictionary a partir de la hoja que representa el diccionario
-'para clasificar informacion, la primera columna de la hoja de excel representa el valor clave (key)
+'@Description crea un objeto Dictionary a partir del valor de un rango, es importante que la seleccion del rango cree una matriz
+'el diccionario creado sirve para clasificar informacion, la primera columna de la hoja de excel representa el valor clave (key)
 'key sirve para buscar la informacion de manera eficiente dentro del objeto Dictionary.
 'El valor (value o item) del objeto Dictionary sera una fila de la hoja excel que representa el diccionario, dicho
 'valor o item o fila se representa mediante un arreglo de una dimension
-'@Param dictionarySheet hoja de excel que representa el diccionario ocupado para clasificar informacion
-Public Sub CreateFilterDictionary(ByVal dictionarySheet As Worksheet)
+'@Param matrix valor de una rango seleccionado que representa una matriz de 2 dimensiones
+Public Sub CreateDictionary(ByVal matrix As Variant)
+    If IsEmpty(matrix) Then
+        Exit Sub
+    End If
+
     dictionary.RemoveAll
 
-    Dim row, column, startRow, endRow, startColumn, endColumn, itemSize, j As Integer
+    Dim row, column, startRow, endRow, startColumn, endColumn As Long
     Dim key As String
-    Dim matrix() As Variant
     
-    matrix = dictionarySheet.UsedRange.value
     startRow = LBound(matrix, 1)
     endRow = UBound(matrix, 1)
     startColumn = LBound(matrix, 2)
     endColumn = UBound(matrix, 2)
-    itemSize = endColumn
     
     For row = startRow To endRow
         Dim item() As Variant
-        ReDim item(itemSize)
+        ReDim item(startColumn To endColumn)
         For column = startColumn To endColumn
             item(column) = Trim(matrix(row, column))
         Next
         key = UCase(Trim(matrix(row, startColumn)))
-        Add key, item
+        If Not Contains(key) Then
+            Add key, item
+        End If
     Next
 End Sub
 
@@ -49,6 +51,16 @@ End Sub
 '@Param item valor del elemento a agregar
 Public Sub Add(ByVal key As Variant, ByVal item As Variant)
     dictionary.Add key, item
+End Sub
+
+'@Description actualiza un elemento existente del objeto Dictionary
+'@Param key valor del item que se desea actualizar
+'@Param item nuevo valor del item a actualizar
+Public Sub UpdateItem(ByVal key As Variant, ByVal item As Variant)
+    If Contains(key) Then
+        Remove key
+    End If
+    Add key, item
 End Sub
 
 '@Description verifica la existencia de un elemento (valor) dentro del objeto Dictionary de acuerdo a la clave con
@@ -69,7 +81,7 @@ End Function
 '@Description obtiene todos los elementos (valores) contenidos dentro del objeto Dictionary
 '@Return valor Variant que representa todos los elementos dentro del objeto Dictionary
 Public Function GetItems() As Variant()
-    GetItems = dictionary.Items
+    GetItems = dictionary.items
 End Function
 
 '@Description obtiene todos las claves (keys) contenidas dentro del objeto Dictionary
@@ -94,3 +106,5 @@ End Sub
 Public Function GetSize() As Integer
     GetSize = dictionary.Count
 End Function
+
+

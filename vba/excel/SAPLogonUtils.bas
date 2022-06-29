@@ -1,11 +1,11 @@
 Attribute VB_Name = "SAPLogonUtils"
-'Libreria utilizada: SAP GUI Scripting API
+'Libreria utilizada: SAP Logon Control
 'La libreria puede ser agregada desde el menu 'Herramientas' - 'Referencias' - 'SAP Logon Control'.
 'Por defecto la libreria no aparece, debe ser agregada mediante el archivo OCX, para ello pulsar el boton "Examinar"
 'y abrir la siguiente ruta: C:\Program Files (x86)\SAP\FrontEnd\SAPgui\
 'dentro de la ruta seleccione el archivo wdtlog.ocx
 
-'@Resume SAPLogonControlUtils ofrece funciones que facilitan establecer conexion con el sistema SAP, a traves de
+'@Resume SAPLogonUtils ofrece funciones que facilitan establecer conexion con el sistema SAP, a traves de
 'SAP Logon Control, componente ofrecido por SAP para establecer conexion mientras se trabaja con interfaces de comunicacion de RFC y BAPI.
 'RFC y BAPI son protocolos que permiten ejecutar transacciones y funciones sin necesidad de manipular la interfaz grafica de usuario de SAP.
 

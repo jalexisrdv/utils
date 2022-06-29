@@ -28,6 +28,15 @@ Public Function GetConnection() As GuiSession
     Set GetConnection = session
 End Function
 
+'@Description obtiene la conexion con la aplicacion SAP Logon, solo se obtiene la conexion una unica vez.
+'@Return objeto GuiSession que representa la sesion actual del usuario en SAP Logon
+Public Function GetSingletonConnection() As GuiSession
+    If session Is Nothing Then
+        Set session = GetConnection
+    End If
+    Set GetSingletonConnection = session
+End Function
+
 '@Description devuelve el numero de sesiones activas en la aplicacion SAP Logon,
 'cada sesion representa un nuevo modo en SAP Logon (equivalente a aplicar la transaccion /on)
 '@Return valor Integer que representa el numero de sesiones establecidas o creadas
@@ -51,6 +60,7 @@ End Function
 '@Description crea un modo o una sesion abriendo una nueva ventana de SAP Logon en la cual trabajara el Script SAP
 '@Return objeto GuiSession que representa la ultima sesion establecida o creada
 Public Function OpenNewModo() As GuiSession
+    Set session = GetConnection
     Dim sessionsCountBeforeModoNew As Integer
     sessionsCountBeforeModoNew = GetSessionsCount()
     session.SendCommand "/on"
@@ -58,10 +68,20 @@ Public Function OpenNewModo() As GuiSession
     Set OpenNewModo = session
 End Function
 
+'@Description crea un modo o una sesion abriendo una nueva ventana de SAP Logon en la cual trabajara el Script SAP, este modo solo es abierto una unica vez.
+'@Return objeto GuiSession que representa la ultima sesion establecida o creada
+Public Function OpenNewModoSingleton() As GuiSession
+    If session Is Nothing Then
+        Set session = OpenNewModo
+    End If
+    Set OpenNewModoSingleton = session
+End Function
+
 '@Description cierra el ultimo modo creado o la ultima ventana de SAP Logon abierta o creada.
 'Dicha sesion sera sobre la cual este trabajando el Scrip SAP
 Public Sub CloseCurrentModo()
     session.SendCommand "/i"
+    Set session = Nothing
 End Sub
 
 '@Description obtiene la sesion actual sobre la cual trabaja el Script SAP
@@ -85,6 +105,34 @@ Public Function OpenTransactionInNewModo(ByVal transactionCode As String) As Gui
     sessionsCountBeforeModoNew = GetSessionsCount()
     session.SendCommand transactionCode
     Set OpenTransactionInNewModo = session
+End Function
+
+'@Description obtiene el handler de la ventanada actualmente activa en SAP en la session sobre la cual
+'esta trabajando el Script
+'@Return Long handler de la ventana
+Public Function GetActiveWindowHandle() As Long
+    Dim sessionActiveWindow As GuiFrameWindow
+    Set sessionActiveWindow = session.activeWindow
+    GetActiveWindowHandle = sessionActiveWindow.Handle
+End Function
+
+'@Description se espera hasta obtener un tipo de mensaje retornado por la barra de estado.
+'Este metodo suele ser de utilidad al momento de exportar un documento con la ventana de guardar como, de windows.
+'¿Por que?
+'Por que, al momento de abrir la ventana de Guardar como, de windows, esta ventana se manipula usando Windows API, entonces, SAP
+'le sede el control de ejecucion a Windows API, por lo que, ahora SAP no sabe en que momento se guardara el documento, se cerrara la ventana de
+'Guardar como, y se cerrara la ventana de Seleccion calculo de costes tabla de SAP. Entonces, al esperar un tipo de mensaje de respuesta de la
+'barra de estatus, nos aseguramos de saber que el documento ya ha sido exportado y asi recuperamos el control de ejecucion en SAP.
+Public Function WaitStatusBarMessageType() As String
+    Dim statusBar As GuiStatusbar
+    Dim messageType As String
+    messageType = vbNullString
+    Set statusBar = session.findById("wnd[0]/sbar")
+    On Error Resume Next
+    While Not messageType Like "[a-zA-Z]"
+        messageType = statusBar.messageType
+    Wend
+    WaitStatusBarMessageType = messageType
 End Function
 
 '@Description comprueba si un componente de interfaz grafica se encuentra presente

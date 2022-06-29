@@ -13,11 +13,18 @@ Option Private Module
 
 Private fso As New FileSystemObject
 
+'@Description crea un nuevo archivo de texto
+'@Param path ruta donde se guardara el archivo
+'@Return objeto de tipo TextStream, el cual facilita el acceso secuencial o manipulacion del archivo de texto
+Public Function CreateTextFile(ByVal path As String) As TextStream
+    Set CreateTextFile = fso.CreateTextFile(path, True)
+End Function
+
 '@Description abre un archivo de texto
 '@Param path ruta del archivo de texto a abrir
 '@Return objeto de tipo TextStream, el cual facilita el acceso secuencial o manipulacion del archivo de texto
 Public Function OpenTextFile(ByVal path As String) As TextStream
-    Set OpenTextFile = fso.OpenTextFile(path, True)
+    Set OpenTextFile = fso.OpenTextFile(path, ForReading)
 End Function
 
 '@Description elimina un archivo mediante la ruta especificada
@@ -38,7 +45,7 @@ End Sub
 '@Param path ruta del folder o carpeta donde se eliminaran los archivos
 Public Sub DeleteAllFilesInFolder(ByVal path As String)
     Dim files_ As Files
-    Dim file_ As File
+    Dim file_ As file
     Set files_ = GetFilesInFolder(path)
     For Each file_ In files_
         On Error Resume Next
@@ -110,7 +117,7 @@ End Function
 '@Description obtiene el archivo indicado
 '@Param path ruta del archivo a recuperar
 '@Return objeto File que representa el archivo recuperado
-Public Function GetFile(ByVal path As String) As File
+Public Function GetFile(ByVal path As String) As file
     Set GetFile = fso.GetFile(path)
 End Function
 
@@ -119,9 +126,9 @@ End Function
 '@Param extension formato (ejemplo: pdf) del archivo que se buscara, util para ignorar los demas archivos con extension diferente
 '@Param extensionLong longitud o numero de caracteres de la extension (formato)
 '@Return objeto File que representa el ultimo archivo modificado o creado
-Public Function GetLastFileModifiedByExtension(ByVal path As String, ByVal extension As String, ByVal extensionLong As Integer) As File
+Public Function GetLastFileModifiedByExtension(ByVal path As String, ByVal extension As String, ByVal extensionLong As Integer) As file
     Dim lastFileName As String
-    Dim lastFile, archivo As File
+    Dim lastFile, archivo As file
     Dim archivos As Files
     Dim isFirstFile As Boolean
     Set lastFile = Nothing
@@ -150,8 +157,8 @@ End Function
 '@Param extensionLong longitud o numero de caracteres de la extension
 '@Param seconds segundos que se pausa o espera el metodo para proceder con la ejecucion
 '@Return objeto File que representa el ultimo archivo modificado o creado
-Public Function WaitLastFileModifiedByExtension(ByVal path As String, ByVal extension As String, ByVal extensionLong As Integer, Optional ByVal seconds As String = "1") As File
-    Dim archivo As File
+Public Function WaitLastFileModifiedByExtension(ByVal path As String, ByVal extension As String, ByVal extensionLong As Integer, Optional ByVal seconds As String = "1") As file
+    Dim archivo As file
     Do While archivo Is Nothing
         Application.Wait (Now + TimeValue("0:00:" & seconds))
         Set archivo = GetLastFileModifiedByExtension(path, extension, extensionLong)
@@ -163,7 +170,7 @@ End Function
 '@Param path ruta con el nombre del archivo donde este sera creado
 '@Param seconds segundos que se pausa o espera el metodo para proceder con la ejecucion
 '@Return objeto File que representa el archivo creado
-Public Function WaitExistenceFile(ByVal path As String, Optional ByVal seconds As String = "1") As File
+Public Function WaitExistenceFile(ByVal path As String, Optional ByVal seconds As String = "1") As file
     Dim exist As Boolean
     Do While exist <> True
         Application.Wait (Now + TimeValue("0:00:" & seconds))
