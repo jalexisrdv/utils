@@ -6,13 +6,13 @@ Attribute VB_Name = "IOModulesUtils"
 'creando un folder principal llamado VBAProjectFiles, dentro se crea un subfolder con el nombre del documento Excel, dentro de este subfolder
 'se agrega el codigo del proyecto.
 '
-'Una vez tengas el codigo del proyecto en la carpeta correspondiente, recomiendo usar Git para que lleves un control de las modificaciones, y versiones del proyecto
+'Una vez tengas el codigo del proyecto en la carpeta correspondiente, recomiendo usar Git para que lleves un control de las modificaciones, y versiones del proyecto,
 'para comenzar a usar git, primero debes crear el repositorio en la cuenta de github, una vez creado este te proporciona una URL.
 'obtenida la url puedes abrir la consola Git Bach y aplicar el comando:
 '
 'git clone URL .
 '
-'El metodo ExportModules debe ser invocado despues de guardar el documento, con la finalidad de crear un respaldo automatico en su carpeta correspondiente,
+'El metodo ExportModules debe ser invocado antes de guardar el documento, con la finalidad de crear un respaldo automatico en su carpeta correspondiente,
 'para ello debemos agregar el siguiente codigo en Thisworkbook:
 '
 'Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
