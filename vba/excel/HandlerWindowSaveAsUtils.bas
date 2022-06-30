@@ -2,7 +2,7 @@ Attribute VB_Name = "HandlerWindowSaveAsUtils"
 Option Explicit
 Option Private Module
 
-Private Const DOCUMENT_NAME As String = "5cead848f38540b70c048428225c04440fa4c641"
+Private Const FILE_NAME As String = "5cead848f38540b70c048428225c04440fa4c641"
 
 'Es importante indicar la ruta: C:\Users\60079123\Documents\SAP\SAP GUI
 'en pathfile, ya que SAP, por defecto le asigna permisos de escritura a esta ruta, lo cual evita que salgan ventanas para permitir la escritura de archivos (estas ventanas salen en rutas diferentes
@@ -126,9 +126,9 @@ Public Function GetFileExtension() As String
 End Function
 
 Public Function GetFileName() As String
-    GetFileName = DOCUMENT_NAME
+    GetFileName = FILE_NAME
 End Function
 
 Public Function GetFileNameWithExtension() As String
-    GetFileNameWithExtension = DOCUMENT_NAME & "." & GetFileExtension
+    GetFileNameWithExtension = FILE_NAME & "." & GetFileExtension
 End Function
