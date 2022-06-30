@@ -15,7 +15,7 @@ Attribute VB_Name = "IOModulesUtils"
 'El metodo ExportModules debe ser invocado despues de guardar el documento, con la finalidad de crear un respaldo automatico en su carpeta correspondiente,
 'para ello debemos agregar el siguiente codigo en Thisworkbook:
 '
-'Private Sub Workbook_AfterSave(ByVal Success As Boolean)
+'Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
 '    IOModulesUtils.ExportModules
 'End Sub
 '
